@@ -24,27 +24,68 @@ Source: "out\device-tracker-win32-x64\*"; DestDir: "{app}"; Flags: recursesubdir
 [Icons]
 Name: "{group}\Device Tracker"; Filename: "{app}\device-tracker.exe"
 
+
 [Code]
-// ✅ Password prompt during uninstall
 function InitializeUninstall(): Boolean;
 var
-  Password: String;
+  Form: TForm;
+  PasswordLabel: TLabel;
+  PasswordEdit: TEdit;
+  OKButton, CancelButton: TButton;
+  ResultCode: Integer;
 begin
-  Password := '';
-  if InputBox('Uninstall Password', 'Enter password to uninstall:', Password) then
-  begin
-    if Password = 'Rudranil@123' then
+  Result := False;
+
+  Form := CreateCustomForm;
+  try
+    Form.Caption := 'Uninstall Password';
+    Form.ClientWidth := 300;
+    Form.ClientHeight := 120;
+    Form.Position := poScreenCenter;
+
+    PasswordLabel := TLabel.Create(Form);
+    PasswordLabel.Parent := Form;
+    PasswordLabel.Caption := 'Enter password to uninstall:';
+    PasswordLabel.Left := 10;
+    PasswordLabel.Top := 20;
+    PasswordLabel.Width := 280;
+
+    PasswordEdit := TEdit.Create(Form);
+    PasswordEdit.Parent := Form;
+    PasswordEdit.PasswordChar := '*';
+    PasswordEdit.Left := 10;
+    PasswordEdit.Top := 45;
+    PasswordEdit.Width := 280;
+
+    OKButton := TButton.Create(Form);
+    OKButton.Parent := Form;
+    OKButton.Caption := 'OK';
+    OKButton.ModalResult := mrOk;
+    OKButton.Left := 130;
+    OKButton.Top := 80;
+    OKButton.Width := 75;
+
+    CancelButton := TButton.Create(Form);
+    CancelButton.Parent := Form;
+    CancelButton.Caption := 'Cancel';
+    CancelButton.ModalResult := mrCancel;
+    CancelButton.Left := 210;
+    CancelButton.Top := 80;
+    CancelButton.Width := 75;
+
+    ResultCode := Form.ShowModal;
+
+    if ResultCode = mrOk then
     begin
-      Result := True; // Correct password
-    end
-    else
-    begin
-      MsgBox('Incorrect password!', mbError, MB_OK);
-      Result := False; // Incorrect
+      if PasswordEdit.Text = 'Rudranil@123' then
+        Result := True
+      else
+      begin
+        MsgBox('Incorrect password!', mbError, MB_OK);
+        Result := False;
+      end;
     end;
-  end
-  else
-  begin
-    Result := False; // User cancelled
+  finally
+    Form.Free;
   end;
 end;
