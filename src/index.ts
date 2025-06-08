@@ -27,7 +27,7 @@ const createWindow = (): void => {
 
   ipcMain.handle('get-system-info', async () => {
     const interfaces = os.networkInterfaces();
-  
+
     const getIPAddress = () => {
       for (const name of Object.keys(interfaces)) {
         for (const iface of interfaces[name] || []) {
@@ -38,9 +38,9 @@ const createWindow = (): void => {
       }
       return 'Not Found';
     };
-  
+
     let serialNumber = 'Unknown';
-  
+
     try {
       const system = await si.system();
       if (
@@ -50,9 +50,8 @@ const createWindow = (): void => {
       ) {
         serialNumber = system.serial;
       } else {
-        // OS-specific fallback
         const platform = os.platform();
-  
+
         if (platform === 'linux') {
           try {
             const output = execSync(
@@ -60,20 +59,33 @@ const createWindow = (): void => {
               { encoding: 'utf-8' }
             );
             serialNumber = output.trim() || 'Not Found';
-          } catch (err:any) {
+          } catch (err: any) {
             console.error('Linux pkexec failed:', err.message);
             serialNumber = 'Permission denied or not found';
           }
         } else if (platform === 'win32') {
           try {
-            const output = execSync(
-              'wmic bios get serialnumber',
+            // First try systemenclosure serial number
+            let output = execSync(
+              'wmic systemenclosure get serialnumber',
               { encoding: 'utf-8' }
             );
-            const lines = output.trim().split('\n');
-            serialNumber = lines[1]?.trim() || 'Not Found';
-          } catch (err:any) {
-            console.error('Windows wmic failed:', err.message);
+            let lines = output.trim().split('\n').filter(Boolean);
+            let result = lines[1]?.trim();
+
+            if (!result || result.toLowerCase() === 'na') {
+              // Fallback to UUID
+              output = execSync(
+                'wmic csproduct get uuid',
+                { encoding: 'utf-8' }
+              );
+              lines = output.trim().split('\n').filter(Boolean);
+              result = lines[1]?.trim() || 'Not Found';
+            }
+
+            serialNumber = result;
+          } catch (err: any) {
+            console.error('Windows fallback failed:', err.message);
             serialNumber = 'Not Found';
           }
         }
@@ -81,7 +93,7 @@ const createWindow = (): void => {
     } catch (error) {
       console.error('Error fetching system info:', error);
     }
-  
+
     return {
       platform: os.platform(),
       arch: os.arch(),
@@ -94,7 +106,7 @@ const createWindow = (): void => {
       serialNumber,
     };
   });
-  
+
 };
 
 app.on('ready', createWindow);
