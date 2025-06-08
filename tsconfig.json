@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "jsx": "react-jsx",                   // ✅ Enables JSX
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "paths": {
+      "@/*": ["src/renderer/*"]
+    },
+    "typeRoots": ["./src/types", "./node_modules/@types"]
+  },
+  "include": ["src", "src/types"]
+}
