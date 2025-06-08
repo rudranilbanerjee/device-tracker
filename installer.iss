@@ -1,5 +1,3 @@
-#include <Dialogs.iss>
-
 [Setup]
 AppName=Device Tracker
 AppVersion=1.0.0
@@ -33,7 +31,7 @@ var
   Password: String;
 begin
   Password := '';
-  if InputQuery('Uninstall Password', 'Enter password to uninstall:', Password) then
+  if InputBox('Uninstall Password', 'Enter password to uninstall:', Password) then
   begin
     if Password = 'Rudranil@123' then
     begin
