@@ -1,3 +1,5 @@
+#include <Dialogs.iss>
+
 [Setup]
 AppName=Device Tracker
 AppVersion=1.0.0
